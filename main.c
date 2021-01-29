@@ -39,14 +39,14 @@ void optionChoosing(){
 			if(activeFile && zoneFile){
 				printNameOfCurrentFile();
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		case 4:
 			if(activeFile && zoneFile){
 				insertNewPrisoner();
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		case 5:
@@ -55,14 +55,14 @@ void optionChoosing(){
 				scanf("%d", &key);
 				findExistingPrisoner(key);
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		case 6:
 			if(activeFile && zoneFile){
 				showAllPrisoners();
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		case 7:
@@ -71,28 +71,30 @@ void optionChoosing(){
 				scanf("%d", &key);
 				deletePrisoner(key);
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		case 8:
 			if(activeFile && zoneFile){
-				changeSentenceLength();
+				printf("Input key value of a selected prisoner\n");
+				scanf("%d", &key);
+				changeSentenceTime(key);
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		case 9:
 			if(activeFile && zoneFile){
 				saveFileLikeCsv();
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		case 10:
 			if(activeFile && zoneFile){
 				printAndSaveCellData();
 			}else{
-				printf("Error, file must be selected");
+				printf("Error, file must be selected\n");
 			}
 			break;
 		default:

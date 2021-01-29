@@ -12,7 +12,7 @@ typedef struct Syllable
 	char prisonersLabel[7];
 	char arrivalDateAndTime[25]; // 10/11/2012 10:25  oko 16 char
 	char cellLabel[5];
-	unsigned  sentenceLenght;
+	unsigned  SentenceTime;
 	bool active;
 }Syllable;
 
@@ -33,7 +33,7 @@ void insertNewPrisoner();
 bool findExistingPrisoner(int key);
 void showAllPrisoners();
 void deletePrisoner(int key);
-void changeSentenceLength();
+void changeSentenceTime();
 void saveFileLikeCsv();
 void printAndSaveCellData();
 
@@ -61,7 +61,7 @@ void createNewFile(){
 				strcpy(buckets[i].syllable[j].prisonersLabel,"RADOJKE");
 				strcpy(buckets[i].syllable[j].arrivalDateAndTime,"10/11/2012 10:25"); //
 				strcpy(buckets[i].syllable[j].cellLabel,"0312F");
-				buckets[i].syllable[j].sentenceLenght = 480;
+				buckets[i].syllable[j].SentenceTime = 480;
 				buckets[i].syllable[j].active = true;
 			}
 		}
@@ -115,10 +115,10 @@ void insertNewPrisoner(){
 	strcat(&prisoner.arrivalDateAndTime,'\0');
 	printf("Input: cellLabel; EXACTLY 5 CHARS\n");
 	scanf("%s", &prisoner.cellLabel); 
-	printf("Input: sentenceLenght; MAX 480 months\n");
-	scanf("%u", &prisoner.sentenceLenght);
+	printf("Input: SentenceTime; MAX 480 months\n");
+	scanf("%u", &prisoner.SentenceTime);
 
-	if(prisoner.sentenceLenght > 480){
+	if(prisoner.SentenceTime > 480){
 		printf("Sentence should be between 0 and 480! Input failed.\n");
 		return;
 	}
@@ -179,10 +179,10 @@ bool insertInBucket(Syllable prisoner){
 //-------------------------------------------------------------------------------------------------
 
 void printSyllable(Syllable prisoner){
-	printf("key = %d\nprisonersLabel = %s\narrivalDateAndTime = %s\ncellLabel = %s\nsentenceLenght = %d\nactive = %s\n--------------------------------------------------------------\n", 
+	printf("key = %d\nprisonersLabel = %s\narrivalDateAndTime = %s\ncellLabel = %s\nSentenceTime = %d\nactive = %s\n--------------------------------------------------------------\n", 
 	prisoner.key, prisoner.prisonersLabel,
 	prisoner.arrivalDateAndTime, prisoner.cellLabel,
-	prisoner.sentenceLenght, prisoner.active ? "true" : "false"); 
+	prisoner.SentenceTime, prisoner.active ? "true" : "false"); 
 }
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -192,11 +192,12 @@ bool findExistingPrisoner(int key){
 	Bucket bucket;
 	rewind(activeFile);
 	for(int i = 0; i<B; i++){
-		fread(&bucket, sizeof(Bucket), 1, zoneFile);
+		fread(&bucket, sizeof(Bucket), 1, activeFile);
 		for(int j = 0; j<b; j++){
-			if(bucket.syllable[i].key == key && bucket.syllable[i].active == true){
+			//printSyllable(bucket.syllable[j]);
+			if(bucket.syllable[j].key == key && bucket.syllable[j].active == true){
 				printf("\nBlock number: %d ; file: %s\n",i,activeFileName);
-				printSyllable(bucket.syllable[i]);
+				printSyllable(bucket.syllable[j]);
 				return true;
 			}
 		}
@@ -216,6 +217,7 @@ bool findExistingPrisoner(int key){
 	}
 	rewind(activeFile);
 	rewind(zoneFile);
+	printf("\nPrisoner with a key %d not found\n",key);
 	return false;
 }
 
@@ -259,10 +261,10 @@ void deletePrisoner(int key){
 	Bucket bucket;
 	rewind(activeFile);
 	for(int i = 0; i<B; i++){
-		fread(&bucket, sizeof(Bucket), 1, zoneFile);
+		fread(&bucket, sizeof(Bucket), 1, activeFile);
 		for(int j = 0; j<b; j++){
-			if(bucket.syllable[i].key == key && bucket.syllable[i].active == true){
-				bucket.syllable[i].active = false;
+			if(bucket.syllable[j].key == key && bucket.syllable[j].active == true){
+				bucket.syllable[j].active = false;
 				printf("\n------------Deletion succesful\n");
 				return;
 			}
@@ -292,8 +294,53 @@ void deletePrisoner(int key){
 //-------------------------------------------------------------------------------------------------
 
 
-void changeSentenceLength(){
+void changeSentenceTime(int key){
+	if(findExistingPrisoner(key) == false){
+		printf("\n------------Prisoner not found, sentence time change unsuccesful %d\n", key);
+		return;
+	}
+	unsigned newSentenceTime = 481;
+	while(newSentenceTime > 480 || newSentenceTime < 0){
+		printf("\nEnter a new sentence time, value between 0 and 480\n");
+		scanf("%u", &newSentenceTime);
+	}
 
+	Bucket bucket;
+	rewind(activeFile);
+	for(int i = 0; i<B; i++){
+		fread(&bucket, sizeof(Bucket), 1, activeFile);
+		for(int j = 0; j<b; j++){
+			if(bucket.syllable[j].key == key && bucket.syllable[j].active == true){
+				bucket.syllable[j].SentenceTime = newSentenceTime;
+				fseek(activeFile,sizeof(Bucket)* i, SEEK_SET);
+				fwrite(&bucket, sizeof(Bucket), 1, activeFile);
+				printf("\n------------Change in sentence time succesful\n");
+				rewind(activeFile);
+				rewind(zoneFile);
+				return;
+			}
+		}
+	}
+	rewind(zoneFile);
+	int bucketNum = 0;
+	while(fread(&bucket, sizeof(Bucket), 1, zoneFile) != 0){
+		printf("searching");
+		for(int i=0; i<b;i++){
+			if(bucket.syllable[i].key == key && bucket.syllable[i].active == true){
+				bucket.syllable[i].SentenceTime = newSentenceTime;
+				fseek(activeFile,sizeof(Bucket)* i, SEEK_SET);
+				fwrite(&bucket, sizeof(Bucket), 1, zoneFile);
+				printf("\n------------Change in sentence time succesful\n");
+				rewind(activeFile);
+				rewind(zoneFile);
+				return;
+			}
+		}
+		bucketNum++;
+	}
+	rewind(activeFile);
+	rewind(zoneFile);
+	return;
 }
 
 //-------------------------------------------------------------------------------------------------
