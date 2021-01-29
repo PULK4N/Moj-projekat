@@ -22,6 +22,14 @@ typedef struct Bucket
 	Syllable syllable[b]; // 
 }Bucket;
 
+typedef struct Cell
+{
+	char cellLabel[6];
+	unsigned prisonersNum;
+	unsigned sentenceTime;
+	unsigned minSentenceTime;
+}Cell;
+
 FILE *activeFile;
 char activeFileName[30];
 FILE *zoneFile;
@@ -39,6 +47,7 @@ void deletePrisoner(int key);
 void changeSentenceTime();
 void saveFileLikeCsv();
 void printAndSaveCellData();
+
 
 bool insertInBucket(Syllable prisoner);
 void printSyllable(Syllable prisoner);
@@ -109,16 +118,15 @@ void insertNewPrisoner(){
 	scanf("%d", &prisoner.key);
 	printf("Input: prisonersLabel; EXACTLY 7 CHARS\n");
 	scanf("%s", &prisoner.prisonersLabel);
-	char date[20];
-	char time[10];
+	prisoner.prisonersLabel[8] = '\0';
 	printf("Input: Arrival Date\n");
 	scanf("%s", &prisoner.arrivalDate); 
 	printf("Input: Arrival Time\n");
 	scanf("%s", &prisoner.arrivalTime); 
 
-
 	printf("Input: cellLabel; EXACTLY 5 CHARS\n");
 	scanf("%s", &prisoner.cellLabel); 
+	prisoner.cellLabel[6] = '\0';
 	printf("Input: SentenceTime; MAX 480 months\n");
 	scanf("%u", &prisoner.SentenceTime);
 
@@ -297,8 +305,9 @@ void deletePrisoner(int key){
 			if(bucket.syllable[i].key == key && bucket.syllable[i].active == true){
 				bucket.syllable[i].active = false;
 				printSyllable(bucket.syllable[i]);
-				fseek(zoneFile,sizeof(Bucket)* i, SEEK_SET);
-				fwrite(&bucket, sizeof(Bucket), 1, activeFile);
+				rewind(zoneFile);
+				fseek(zoneFile,sizeof(Bucket) * blockNum, SEEK_SET);
+				fwrite(&bucket, sizeof(Bucket), 1, zoneFile);
 				printf("\n Deletion succesful\n");
 				return;
 			}
@@ -349,7 +358,7 @@ void changeSentenceTime(int key){
 		for(int i=0; i<b;i++){
 			if(bucket.syllable[i].key == key && bucket.syllable[i].active == true){
 				bucket.syllable[i].SentenceTime = newSentenceTime;
-				fseek(activeFile,sizeof(Bucket)* i, SEEK_SET);
+				fseek(zoneFile,sizeof(Bucket)* bucketNum, SEEK_SET);
 				fwrite(&bucket, sizeof(Bucket), 1, zoneFile);
 				printf("\n------------Change in sentence time succesful\n");
 				rewind(activeFile);
@@ -393,7 +402,7 @@ void saveFileLikeCsv(){
 	while(fread(&bucket, sizeof(Bucket), 1, zoneFile) != 0){
 		for(int i=0; i<b;i++){
 			if(bucket.syllable[i].active == true){
-				fprintf(csvFile,"%d;%s;%s;%s;%d\n", 
+				fprintf(csvFile,"%d;%s;%s;%s;%s;%d\n", 
 				bucket.syllable[i].key, bucket.syllable[i].prisonersLabel,
 				bucket.syllable[i].arrivalDate, bucket.syllable[i].arrivalTime, 
 				bucket.syllable[i].cellLabel,
@@ -411,5 +420,32 @@ void saveFileLikeCsv(){
 
 
 void printAndSaveCellData(){
+	rewind(activeFile);
+	rewind(zoneFile);
+	Bucket bucket;
+	
+	int blockNum=0;
+	while(fread(&bucket, sizeof(Bucket), 1, activeFile)){
+		printf("\nBlock number: %d ; file: %s\n",blockNum,activeFileName);
+		for(int i=0;i<b;i++){
+			if(bucket.syllable[i].active == true){
+				
 
+
+			}
+		}
+		blockNum++;
+	}
+	blockNum = 0;
+	while(fread(&bucket, sizeof(Bucket), 1, zoneFile)){
+		printf("\nBlock number: %d ; file: %s\n",blockNum,zoneFileName);
+		for(int i=0;i<b;i++){
+			if(bucket.syllable[i].active == true){
+				
+
+				
+			}
+		}
+		blockNum++;
+	}
 }
