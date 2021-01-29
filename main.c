@@ -7,7 +7,7 @@ void optionChoosing(){
 	int key;
 	int value;
 	while(1){
-		printf("Input a value of an option of your choice\n");
+		printf("------------------------------------------\n\nInput a value of an option of your choice\n");
 		printf("1. Create a new file\n");
 		printf("2. Choose an existing file\n");
 		printf("3. Show the name of an active file\n");
@@ -36,30 +36,64 @@ void optionChoosing(){
 			chooseAnExistingFile();
 			break;
 		case 3:
-			printNameOfCurrentFile();
+			if(activeFile && zoneFile){
+				printNameOfCurrentFile();
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		case 4:
-			insertNewPrisoner();
+			if(activeFile && zoneFile){
+				insertNewPrisoner();
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		case 5:
-			printf("Input key value of a selected prisoner\n");
-			scanf("%d",key);
-			findExistingPrisoner(key);
+			if(activeFile && zoneFile){
+				printf("Input key value of a selected prisoner\n");
+				scanf("%d", &key);
+				findExistingPrisoner(key);
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		case 6:
-			showAllPrisoners();
+			if(activeFile && zoneFile){
+				showAllPrisoners();
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		case 7:
-			deletePrisoner();
+			if(activeFile && zoneFile){
+				printf("Input key value of a selected prisoner\n");
+				scanf("%d", &key);
+				deletePrisoner(key);
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		case 8:
-			changeSentenceLength();
+			if(activeFile && zoneFile){
+				changeSentenceLength();
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		case 9:
-			saveFileLikeCsv();
+			if(activeFile && zoneFile){
+				saveFileLikeCsv();
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		case 10:
-			printAndSaveCellData();
+			if(activeFile && zoneFile){
+				printAndSaveCellData();
+			}else{
+				printf("Error, file must be selected");
+			}
 			break;
 		default:
 			printf("\nNon-existing option\n\n\n");
