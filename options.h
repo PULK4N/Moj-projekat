@@ -35,7 +35,9 @@ char activeFileName[30];
 FILE *zoneFile;
 char zoneFileName[35];
 FILE *csvFile;
-char csvFileName[30];
+char csvFileName[35];
+FILE *cellFile;
+char cellFileName[35];
 
 void createNewFile();
 void chooseAnExistingFile();
@@ -52,6 +54,8 @@ void printAndSaveCellData();
 bool insertInBucket(Syllable prisoner);
 void printSyllable(Syllable prisoner);
 void readCell(Cell **cell, Bucket bucket, int* cellCounter);
+void writeCells(int cellCounter,Cell** cells);
+void printCells();
 
 void createNewFile(){
 	printf("Input file name\n");
@@ -59,7 +63,7 @@ void createNewFile(){
 	activeFile = fopen(activeFileName,"rb+");
 	if(activeFile != NULL){
 		printf("Error, file with name %s exist already!\n",activeFileName);
-		fclose(activeFile);
+//		fclose(activeFile);
 		return;
 	}else{
 		activeFile = fopen(activeFileName,"wb+");
@@ -411,7 +415,7 @@ void saveFileLikeCsv(){
 			}
 		}
 	}
-	fclose(csvFile);
+//	fclose(csvFile);
 	rewind(activeFile);
 	rewind(zoneFile);
 }
@@ -425,20 +429,21 @@ void printAndSaveCellData(){//TODO: finish this
 	rewind(zoneFile);
 	Bucket bucket;
 	int cellCounter = 0;
-	Cell **cell = (Cell**)malloc(sizeof(Cell*));
-	(*cell) = NULL;
+	Cell *cells = NULL;
 	
 	while(fread(&bucket, sizeof(Bucket), 1, activeFile)){
-		readCell(cell,bucket,&cellCounter);
+		readCell(&cells,bucket,&cellCounter);
 	}
 	while(fread(&bucket, sizeof(Bucket), 1, zoneFile)){
-		readCell(cell,bucket,&cellCounter);
+		readCell(&cells,bucket,&cellCounter);
 	}
 	printf("NUM OF CELLS IS: %d",cellCounter);
 
-	free(*cell);
-	free(cell);
-	cell = NULL;
+	writeCells(cellCounter, cells);
+	printCells();
+
+	free(cells);
+	cells = NULL;
 }
 
 void readCell(Cell **cell, Bucket bucket, int* cellCounter){
@@ -474,5 +479,21 @@ void readCell(Cell **cell, Bucket bucket, int* cellCounter){
 				(*cellCounter)++;
 			}
 		}
+	}
+}
+
+void writeCells(int cellCounter,Cell** cells){
+	strcpy(cellFileName,activeFileName);
+	strcat(cellFileName,"-cell");
+	cellFile = fopen(cellFileName,"wb+");
+	rewind(cellFile);
+	fwrite(cells,sizeof(Cell)*(cellCounter-1),1,cellFile);
+}
+
+void printCells(){
+	Cell cell;
+	rewind(cellFile);
+	while(fread(&cell, sizeof(Cell), 1, cellFile)){
+		printf("\n---------------------------------------\nCell label: %s\nMinimal sentence time %d\nAverage sentence time: %d", cell.cellLabel,cell.minSentenceTime,cell.sentenceTime/cell.prisonersNum);
 	}
 }

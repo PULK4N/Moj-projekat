@@ -28,6 +28,11 @@ void optionChoosing(){
 				fclose(activeFile);
 			if(zoneFile)
 				fclose(zoneFile);
+			if(csvFile){
+				fclose(csvFile);
+			if(cellFile)
+				fclose(cellFile);
+			}
 			return;
 		case 1:
 			createNewFile();
