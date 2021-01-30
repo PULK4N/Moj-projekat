@@ -396,7 +396,7 @@ void saveFileLikeCsv(){
 	while(fread(&bucket, sizeof(Bucket), 1, activeFile) != 0){
 		for(int i=0; i<b;i++){
 			if(bucket.syllable[i].active == true){
-				fprintf(csvFile,"%d;%s;%s;%s;%s;%d\n", 
+				fprintf(csvFile,"%d,%s,%s,%s,%s,%d\n", 
 				bucket.syllable[i].key, bucket.syllable[i].prisonersLabel,
 				bucket.syllable[i].arrivalDate, bucket.syllable[i].arrivalTime, bucket.syllable[i].cellLabel,
 				bucket.syllable[i].SentenceTime); 
