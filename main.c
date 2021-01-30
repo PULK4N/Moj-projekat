@@ -2,6 +2,18 @@
 #include <stdlib.h>
 #include "options.h"
 
+void closeFiles(){
+	if(activeFile)
+		fclose(activeFile);
+	if(zoneFile)
+		fclose(zoneFile);
+	if(csvFile){
+		fclose(csvFile);
+	if(cellFile)
+		fclose(cellFile);
+	}
+}
+
 
 void optionChoosing(){
 	int key;
@@ -24,20 +36,14 @@ void optionChoosing(){
 		switch (value)
 		{
 		case 0:
-			if(activeFile)
-				fclose(activeFile);
-			if(zoneFile)
-				fclose(zoneFile);
-			if(csvFile){
-				fclose(csvFile);
-			if(cellFile)
-				fclose(cellFile);
-			}
+			closeFiles();
 			return;
 		case 1:
+			closeFiles();
 			createNewFile();
 			break;
 		case 2:
+			closeFiles();
 			chooseAnExistingFile();
 			break;
 		case 3:

@@ -12,7 +12,7 @@ typedef struct Syllable
 	char prisonersLabel[8];// 8 chars, for \0 at the end
 	char arrivalDate[15]; 
 	char arrivalTime[10];
-	char cellLabel[6];
+	char cellLabel[6];//\0 at the end
 	unsigned  SentenceTime;
 	bool active;
 }Syllable;
@@ -56,6 +56,7 @@ void printSyllable(Syllable prisoner);
 void readCell(Cell **cell, Bucket bucket, int* cellCounter);
 void writeCells(int cellCounter,Cell** cells);
 void printCells();
+bool checkConstraints(Syllable prisoner);
 
 void createNewFile(){
 	printf("Input file name\n");
@@ -87,7 +88,6 @@ void createNewFile(){
 	}
 	rewind(activeFile);
 	rewind(zoneFile);
-	//fclose(activeFile);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -115,6 +115,25 @@ void printNameOfCurrentFile(){//TODO:
 
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
+bool checkConstraints(Syllable prisoner){//return false if ok
+	if(prisoner.SentenceTime > 480){
+		printf("Sentence should be between 0 and 480! Input failed.\n");
+		return true;
+	}
+
+	if(prisoner.key > 99999999 || prisoner.key < 0){
+		return true;
+	}
+
+	for(int i=0;i<7;i++)
+		if(prisoner.prisonersLabel[i] == '\0')
+			return true;
+	for(int i=0;i<5;i++)
+		if(prisoner.cellLabel[i] == '\0')
+			return true;
+	return false;
+}
+
 
 void insertNewPrisoner(){
 	Syllable prisoner;
@@ -135,10 +154,11 @@ void insertNewPrisoner(){
 	printf("Input: SentenceTime; MAX 480 months\n");
 	scanf("%u", &prisoner.SentenceTime);
 
-	if(prisoner.SentenceTime > 480){
-		printf("Sentence should be between 0 and 480! Input failed.\n");
+	if(checkConstraints(prisoner)){
+		printf("\n Input failed\n");
 		return;
 	}
+
 
 	printf("\n\nChecking to see if prisoner with key value %d already exists\n", prisoner.key);
 	if(findExistingPrisoner(prisoner.key)){
@@ -407,7 +427,7 @@ void saveFileLikeCsv(){
 	while(fread(&bucket, sizeof(Bucket), 1, zoneFile) != 0){
 		for(int i=0; i<b;i++){
 			if(bucket.syllable[i].active == true){
-				fprintf(csvFile,"%d;%s;%s;%s;%s;%d\n", 
+				fprintf(csvFile,"%d,%s,%s,%s,%s,%d\n", 
 				bucket.syllable[i].key, bucket.syllable[i].prisonersLabel,
 				bucket.syllable[i].arrivalDate, bucket.syllable[i].arrivalTime, 
 				bucket.syllable[i].cellLabel,
