@@ -51,6 +51,7 @@ void printAndSaveCellData();
 
 bool insertInBucket(Syllable prisoner);
 void printSyllable(Syllable prisoner);
+void readCell(Cell **cell, Bucket bucket, int* cellCounter);
 
 void createNewFile(){
 	printf("Input file name\n");
@@ -423,51 +424,55 @@ void printAndSaveCellData(){//TODO: finish this
 	rewind(activeFile);
 	rewind(zoneFile);
 	Bucket bucket;
-	Cell *cell = NULL;
+	int cellCounter = 0;
+	Cell **cell = (Cell**)malloc(sizeof(Cell*));
+	(*cell) = NULL;
 	
 	while(fread(&bucket, sizeof(Bucket), 1, activeFile)){
-		readCell(cell,bucket,activeFile);
+		readCell(cell,bucket,&cellCounter);
 	}
 	while(fread(&bucket, sizeof(Bucket), 1, zoneFile)){
-		readCell(cell,bucket,zoneFile);
+		readCell(cell,bucket,&cellCounter);
 	}
-	printf("SIZE OF CELL IS: %d",sizeof(*cell)/sizeof(Cell));
+	printf("NUM OF CELLS IS: %d",cellCounter);
 
+	free(*cell);
 	free(cell);
 	cell = NULL;
 }
 
-void readCell(Cell *cell, Bucket bucket, FILE *file){
+void readCell(Cell **cell, Bucket bucket, int* cellCounter){
 	for(int i=0;i<b;i++){
 		if(bucket.syllable[i].active == true){
-			if(cell != NULL){
+			if((*cell) != NULL){
 				bool different = true;
-				for(int j=0; j < sizeof(*cell)/sizeof(Cell);j++){
-					if(strcmp(cell[j].cellLabel,bucket.syllable[i].cellLabel) == 0){//if they are dif returns 1
-						if(cell[j].minSentenceTime > bucket.syllable[i].SentenceTime){
-							cell[j].minSentenceTime = bucket.syllable[i].SentenceTime;
+				for(int j=0; j < (*cellCounter);j++){
+					if(strcmp((*cell)[j].cellLabel,bucket.syllable[i].cellLabel) == 0){//if they are dif returns 1
+						if((*cell)[j].minSentenceTime > bucket.syllable[i].SentenceTime){
+							(*cell)[j].minSentenceTime = bucket.syllable[i].SentenceTime;
 						}
-						cell[j].sentenceTime += bucket.syllable[i].SentenceTime;
-						cell[j].prisonersNum += 1;
+						(*cell)[j].sentenceTime += bucket.syllable[i].SentenceTime;
+						(*cell)[j].prisonersNum += 1;
 						different = false;
 					}
 				}
 				if(different){//if a new cell realoc and put values in that cell
-					cell = realloc(cell,sizeof(*cell)+sizeof(Cell));
-					int endIndex = sizeof(*cell)/sizeof(Cell) - 1;
-					strcpy(cell[endIndex].cellLabel,bucket.syllable[i].cellLabel);
-					cell[endIndex].minSentenceTime = bucket.syllable[i].SentenceTime;
-					cell[endIndex].sentenceTime = cell->minSentenceTime;
-					cell[endIndex].prisonersNum = 1;
+					(*cell) = realloc((*cell),(1+(*cellCounter))*sizeof(Cell));
+					int endIndex = (*cellCounter) - 1;
+					strcpy((*cell)[endIndex].cellLabel,bucket.syllable[i].cellLabel);
+					(*cell)[endIndex].minSentenceTime = bucket.syllable[i].SentenceTime;
+					(*cell)[endIndex].sentenceTime = (*cell)[endIndex].minSentenceTime;
+					(*cell)[endIndex].prisonersNum = 1;
+					(*cellCounter)++;
 				}
 			}else{
-				cell = (Cell*)malloc(sizeof(Cell));
-				strcpy(cell->cellLabel,bucket.syllable[i].cellLabel);
-				cell->minSentenceTime = bucket.syllable[i].SentenceTime;
-				cell->sentenceTime = cell->minSentenceTime;
-				cell->prisonersNum = 1;
+				(*cell) = (Cell*)calloc(1,sizeof(Cell));
+				strcpy((*cell)->cellLabel,bucket.syllable[i].cellLabel);
+				(*cell)->minSentenceTime = bucket.syllable[i].SentenceTime;
+				(*cell)->sentenceTime = (*cell)->minSentenceTime;
+				(*cell)->prisonersNum = 1;
+				(*cellCounter)++;
 			}
-
 		}
 	}
 }
