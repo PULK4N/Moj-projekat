@@ -75,13 +75,13 @@ void createNewFile(){
 		//TODO: remove this later
 		for(int i = 0; i<B; i++){
 			for(int j = 0; j<b; j++){
-				buckets[i].syllable[j].key = 11*j + i;
-				strcpy(buckets[i].syllable[j].prisonersLabel,"UNKNOWN");
-				strcpy(buckets[i].syllable[j].arrivalDate,"10/11/2012"); //
-				strcpy(buckets[i].syllable[j].arrivalTime,"10:25");
-				sprintf(buckets[i].syllable[j].cellLabel,"%d",10000+i);
-				buckets[i].syllable[j].SentenceTime = 480;
-				buckets[i].syllable[j].active = true;
+				// buckets[i].syllable[j].key = 11*j + i;
+				// strcpy(buckets[i].syllable[j].prisonersLabel,"UNKNOWN");
+				// strcpy(buckets[i].syllable[j].arrivalDate,"10/11/2012"); //
+				// strcpy(buckets[i].syllable[j].arrivalTime,"10:25");
+				// sprintf(buckets[i].syllable[j].cellLabel,"%d",10000+i);
+				// buckets[i].syllable[j].SentenceTime = 480;
+				buckets[i].syllable[j].active = false;
 			}
 		}
 		fwrite(&buckets,sizeof(Bucket)*B,1, activeFile);
@@ -242,7 +242,7 @@ bool findExistingPrisoner(int key){
 		for(int j = 0; j<b; j++){
 			//printSyllable(bucket.syllable[j]);
 			if(bucket.syllable[j].key == key && bucket.syllable[j].active == true){
-				printf("\nBlock number: %d ; file: %s\n",i,activeFileName);
+				printf("\nBlock number: %d; Num in bucket: %d ; file: %s\n",i,j,activeFileName);
 				printSyllable(bucket.syllable[j]);
 				return true;
 			}
@@ -254,7 +254,7 @@ bool findExistingPrisoner(int key){
 		printf("searching");
 		for(int i=0; i<b;i++){
 			if(bucket.syllable[i].key == key && bucket.syllable[i].active == true){
-				printf("\nBlock number: %d ; file: %s\n",blockNum,zoneFileName);
+				printf("\nBlock number: %d ; Num in bucket %d ; file: %s\n",blockNum,i,zoneFileName);
 				printSyllable(bucket.syllable[i]);
 				return true;
 			}
@@ -276,9 +276,10 @@ void showAllPrisoners(){
 	Bucket bucket;
 	int blockNum=0;
 	while(fread(&bucket, sizeof(Bucket), 1, activeFile)){
-		printf("\nBlock number: %d ; file: %s\n",blockNum,activeFileName);
+		printf("\n-----Block number: %d ; file: %s\n",blockNum,activeFileName);
 		for(int i=0;i<b;i++){
 			if(bucket.syllable[i].active == true){
+				printf("Num in bucket %d\n",i);
 				printSyllable(bucket.syllable[i]);
 			}
 		}
@@ -289,6 +290,7 @@ void showAllPrisoners(){
 		printf("\nBlock number: %d ; file: %s\n",blockNum,zoneFileName);
 		for(int i=0;i<b;i++){
 			if(bucket.syllable[i].active == true){
+				printf("Num in bucket %d\n",i);
 				printSyllable(bucket.syllable[i]);
 			}
 		}
